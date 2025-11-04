@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediBot Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #2575fc;
+      --secondary: #6a11cb;
+      --light: #f8fafc;
+      --dark: #1e293b;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      color: #333;
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+    
+    .navbar {
+      background: #ffffff !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      color: var(--primary) !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .nav-link {
+      font-weight: 500;
+      color: #475569 !important;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--primary) !important;
+    }
+
+    .chat-container {
+      border-radius: 20px;
+      padding: 25px;
+      background: #fff;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      height: 70vh;
+      display: flex;
+      flex-direction: column;
+      margin-top: 30px;
+    }
+    
+    .chat-header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .chat-header h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+    
+    .chat-header p {
+      color: #64748b;
+      margin: 5px 0 0;
+    }
+    
+    #chatBox {
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 15px;
+      padding: 15px;
+      background: #f8fafc;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-message {
+      align-self: flex-end;
+      background: var(--primary);
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .bot-message {
+      align-self: flex-start;
+      background: #e2e8f0;
+      color: var(--dark);
+      border-bottom-left-radius: 5px;
+    }
+    
+    .bot-message strong {
+      color: var(--primary);
+    }
+    
+    .typing-indicator {
+      align-self: flex-start;
+      background: #e2e8f0;
+      color: var(--dark);
+      border-bottom-left-radius: 5px;
+      padding: 12px 16px;
+      display: none;
+    }
+    
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #64748b;
+      border-radius: 50%;
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+    
+    .input-group {
+      gap: 10px;
+    }
+    
+    .input-group input {
+      border-radius: 20px;
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(37, 117, 252, 0.15);
+    }
+    
+    .btn-primary {
+      border-radius: 20px;
+      padding: 12px 25px;
+      font-weight: 600;
+      background: var(--primary);
+      border: none;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .suggestion-btn {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      color: #475569;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .suggestion-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+    
+    .quick-topics {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f5f9;
+      border-radius: 15px;
+    }
+    
+    .quick-topics h6 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    .topic-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .topic-btn {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: #475569;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .topic-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 65vh;
+        padding: 20px;
+      }
+      
+      .message {
+        max-width: 90%;
+      }
+      
+      .suggestions {
+        justify-content: center;
+      }
+      
+      .topic-buttons {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">
+      <i class="fas fa-heartbeat"></i> MediBot
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="symptoms.html">Symptoms</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="chat.html">Chat</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="health.html">Health</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Chat Area -->
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="chat-container">
+        <div class="chat-header">
+          <h3><i class="fas fa-comments me-2"></i>Chat with MediBot</h3>
+          <p>Ask me anything about health and wellness</p>
+        </div>
+        
+        <div id="chatBox">
+          <div class="bot-message">
+            <strong>MediBot:</strong> Hello! I'm your AI health assistant. How can I help you today? You can ask me about symptoms, general health advice, or medical information.
+          </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+          <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+        
+        <form id="chatForm" class="input-group">
+          <input type="text" id="chatInput" class="form-control" placeholder="Type your health question..." required>
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-paper-plane me-1"></i> Send
+          </button>
+        </form>
+        
+        <div class="suggestions">
+          <div class="suggestion-btn" onclick="suggestionClick('What are common cold symptoms?')">Common cold symptoms</div>
+          <div class="suggestion-btn" onclick="suggestionClick('How to relieve headache?')">Headache relief</div>
+          <div class="suggestion-btn" onclick="suggestionClick('Benefits of exercise')">Exercise benefits</div>
+          <div class="suggestion-btn" onclick="suggestionClick('Healthy diet tips')">Diet tips</div>
+        </div>
+        
+        <div class="quick-topics">
+          <h6>Quick Health Topics:</h6>
+          <div class="topic-buttons">
+            <div class="topic-btn" onclick="suggestionClick('Anxiety symptoms')">Anxiety</div>
+            <div class="topic-btn" onclick="suggestionClick('Asthma symptoms')">Asthma</div>
+            <div class="topic-btn" onclick="suggestionClick('Arthritis pain relief')">Arthritis</div>
+            <div class="topic-btn" onclick="suggestionClick('Migraine relief')">Migraines</div>
+            <div class="topic-btn" onclick="suggestionClick('Skin rash causes')">Skin Rash</div>
+            <div class="topic-btn" onclick="suggestionClick('Digestive problems')">Digestion</div>
+            <div class="topic-btn" onclick="suggestionClick('Weight loss tips')">Weight Loss</div>
+            <div class="topic-btn" onclick="suggestionClick('Mental health tips')">Mental Health</div>
+            <div class="topic-btn" onclick="suggestionClick('First aid for burns')">First Aid</div>
+            <div class="topic-btn" onclick="suggestionClick('Vitamin deficiency symptoms')">Vitamins</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const chatBox = document.getElementById('chatBox');
+const chatForm = document.getElementById('chatForm');
+const chatInput = document.getElementById('chatInput');
+const typingIndicator = document.getElementById('typingIndicator');
+
+// Focus input on load
+chatInput.focus();
+
+// Enhanced Medical knowledge base with responses
+const medicalKnowledge = {
+  "hello": "Hello! I'm MediBot, your AI health assistant. How can I help you today?",
+  "hi": "Hi there! What health questions can I help you with?",
+  
+  // Existing topics
+  "symptoms of common cold": "Common cold symptoms typically include: runny or stuffy nose, sore throat, cough, congestion, slight body aches, mild headache, sneezing, and low-grade fever. Most people recover within 7-10 days.",
+  "common cold symptoms": "Common cold symptoms typically include: runny or stuffy nose, sore throat, cough, congestion, slight body aches, mild headache, sneezing, and low-grade fever. Most people recover within 7-10 days.",
+  "headache relief": "For headache relief, you can try: resting in a quiet, dark room, applying a cold or warm compress to your head or neck, staying hydrated, practicing relaxation techniques, taking over-the-counter pain relievers (following package instructions), and avoiding headache triggers.",
+  "benefits of exercise": "Regular exercise provides many benefits: improves cardiovascular health, strengthens muscles and bones, helps maintain a healthy weight, reduces risk of chronic diseases, improves mood and mental health, boosts energy levels, and promotes better sleep.",
+  "healthy diet tips": "Healthy eating tips: focus on fruits and vegetables, choose whole grains, include lean proteins, limit processed foods, reduce added sugars, watch portion sizes, stay hydrated with water, and limit saturated fats and sodium.",
+  "covid symptoms": "COVID-19 symptoms can include: fever or chills, cough, shortness of breath, fatigue, muscle or body aches, headache, new loss of taste or smell, sore throat, congestion, nausea or vomiting, and diarrhea.",
+  "flu symptoms": "Influenza (flu) symptoms often include: fever, cough, sore throat, runny or stuffy nose, muscle or body aches, headaches, fatigue, and sometimes vomiting and diarrhea (more common in children).",
+  "reduce stress": "To reduce stress: practice deep breathing exercises, get regular physical activity, ensure adequate sleep, practice mindfulness or meditation, maintain social connections, take breaks when needed, and consider talking to a professional if stress becomes overwhelming.",
+  "improve sleep": "To improve sleep quality: maintain a consistent sleep schedule, create a restful environment, limit screen time before bed, avoid caffeine and large meals before bedtime, get regular exercise, and manage stress through relaxation techniques.",
+  "back pain": "For back pain relief: practice good posture, apply heat or cold packs, try gentle stretching, consider over-the-counter pain relievers, maintain a healthy weight, and avoid heavy lifting. If pain persists, consult a healthcare provider.",
+  "allergy symptoms": "Common allergy symptoms include: sneezing, runny or stuffy nose, itchy or watery eyes, itchy throat or ears, sinus pressure, and sometimes coughing or wheezing. Allergies are often seasonal or triggered by specific allergens.",
+  "heart attack symptoms": "Heart attack symptoms may include: chest pain or discomfort, pain in arms, back, neck, jaw, or stomach, shortness of breath, cold sweat, nausea, lightheadedness. If you suspect a heart attack, seek emergency medical help immediately.",
+  "high blood pressure": "To manage high blood pressure: reduce sodium intake, eat a balanced diet rich in fruits and vegetables, exercise regularly, maintain a healthy weight, limit alcohol, avoid smoking, and take prescribed medications as directed.",
+  "diabetes symptoms": "Diabetes symptoms can include: increased thirst, frequent urination, extreme hunger, unexplained weight loss, fatigue, blurred vision, slow-healing sores, and frequent infections.",
+  
+  // NEW TOPICS ADDED
+  "anxiety symptoms": "Anxiety symptoms may include: excessive worrying, restlessness, fatigue, difficulty concentrating, irritability, muscle tension, sleep problems, and panic attacks. If anxiety interferes with daily life, consider speaking with a mental health professional.",
+  "asthma symptoms": "Asthma symptoms include: shortness of breath, chest tightness, wheezing, coughing (especially at night or early morning). Asthma attacks can be triggered by allergens, exercise, cold air, or respiratory infections.",
+  "arthritis pain relief": "For arthritis pain relief: maintain a healthy weight, exercise regularly (low-impact activities like swimming), use hot/cold therapy, consider over-the-counter anti-inflammatory medications, try physical therapy, and use assistive devices if needed.",
+  "migraine relief": "Migraine relief strategies: rest in a dark, quiet room, apply cold compresses to head/neck, stay hydrated, try relaxation techniques, consider prescribed migraine medications, identify and avoid triggers (certain foods, stress, hormonal changes).",
+  "skin rash causes": "Common skin rash causes: allergic reactions, eczema, contact dermatitis, infections, autoimmune conditions, heat, or medications. Treatment depends on the cause but may include moisturizers, anti-itch creams, or prescription medications.",
+  "digestive problems": "For digestive issues: eat smaller, more frequent meals; stay hydrated; increase fiber gradually; limit fatty foods; manage stress; exercise regularly. Common issues include indigestion, bloating, constipation, or diarrhea.",
+  "weight loss tips": "Healthy weight loss tips: create a calorie deficit through diet and exercise, eat more fruits/vegetables, choose lean proteins, limit processed foods, stay hydrated, get adequate sleep, and aim for gradual weight loss (1-2 lbs per week).",
+  "mental health tips": "For better mental health: maintain social connections, practice mindfulness, get regular exercise, ensure adequate sleep, limit alcohol, set realistic goals, take breaks, and seek professional help when needed.",
+  "first aid for burns": "For minor burns: cool the burn with cool (not cold) running water for 10-15 minutes, cover with sterile non-stick dressing, avoid breaking blisters, take pain relievers if needed. Seek medical help for severe burns or if burn covers a large area.",
+  "vitamin deficiency symptoms": "Common deficiency symptoms: Vitamin D (fatigue, bone pain), B12 (anemia, neurological issues), Iron (fatigue, pale skin), Vitamin C (bleeding gums, slow healing). A balanced diet usually provides necessary vitamins, but supplements may be needed.",
+  
+  "default": "I'm designed to provide general health information. For your specific health concerns, please consult with a healthcare professional who can provide personalized medical advice based on your complete health history and current condition."
+};
+
+// Handle form submission
+chatForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userMsg = chatInput.value.trim();
+  if (!userMsg) return;
+
+  // Add user message to chat
+  addMessage(userMsg, 'user');
+  chatInput.value = '';
+  
+  // Show typing indicator
+  typingIndicator.style.display = 'block';
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Simulate API delay
+  setTimeout(() => {
+    // Hide typing indicator
+    typingIndicator.style.display = 'none';
+    
+    // Generate bot response
+    const botResponse = generateResponse(userMsg);
+    
+    // Add bot response to chat
+    addMessage(botResponse, 'bot');
+  }, 1500);
+});
+
+// Generate response based on user input
+function generateResponse(userInput) {
+  const inputLower = userInput.toLowerCase();
+  
+  // Check for specific keywords and return appropriate responses
+  if (inputLower.includes('cold') && inputLower.includes('symptom')) {
+    return medicalKnowledge['common cold symptoms'];
+  } else if (inputLower.includes('headache') && (inputLower.includes('relief') || inputLower.includes('help'))) {
+    return medicalKnowledge['headache relief'];
+  } else if (inputLower.includes('exercise') && inputLower.includes('benefit')) {
+    return medicalKnowledge['benefits of exercise'];
+  } else if (inputLower.includes('diet') || inputLower.includes('eat') || inputLower.includes('food')) {
+    return medicalKnowledge['healthy diet tips'];
+  } else if (inputLower.includes('covid') || inputLower.includes('coronavirus')) {
+    return medicalKnowledge['covid symptoms'];
+  } else if (inputLower.includes('flu') || inputLower.includes('influenza')) {
+    return medicalKnowledge['flu symptoms'];
+  } else if (inputLower.includes('stress')) {
+    return medicalKnowledge['reduce stress'];
+  } else if (inputLower.includes('sleep')) {
+    return medicalKnowledge['improve sleep'];
+  } else if (inputLower.includes('back') && inputLower.includes('pain')) {
+    return medicalKnowledge['back pain'];
+  } else if (inputLower.includes('allerg')) {
+    return medicalKnowledge['allergy symptoms'];
+  } else if (inputLower.includes('heart') || inputLower.includes('chest pain')) {
+    return medicalKnowledge['heart attack symptoms'];
+  } else if (inputLower.includes('blood pressure') || inputLower.includes('hypertension')) {
+    return medicalKnowledge['high blood pressure'];
+  } else if (inputLower.includes('diabet')) {
+    return medicalKnowledge['diabetes symptoms'];
+  } else if (inputLower.includes('anxiety')) {
+    return medicalKnowledge['anxiety symptoms'];
+  } else if (inputLower.includes('asthma')) {
+    return medicalKnowledge['asthma symptoms'];
+  } else if (inputLower.includes('arthritis')) {
+    return medicalKnowledge['arthritis pain relief'];
+  } else if (inputLower.includes('migraine')) {
+    return medicalKnowledge['migraine relief'];
+  } else if (inputLower.includes('skin') && inputLower.includes('rash')) {
+    return medicalKnowledge['skin rash causes'];
+  } else if (inputLower.includes('digest') || inputLower.includes('stomach') || inputLower.includes('gut')) {
+    return medicalKnowledge['digestive problems'];
+  } else if (inputLower.includes('weight') && inputLower.includes('loss')) {
+    return medicalKnowledge['weight loss tips'];
+  } else if (inputLower.includes('mental') && inputLower.includes('health')) {
+    return medicalKnowledge['mental health tips'];
+  } else if (inputLower.includes('first aid') || inputLower.includes('burn')) {
+    return medicalKnowledge['first aid for burns'];
+  } else if (inputLower.includes('vitamin') || inputLower.includes('deficiency')) {
+    return medicalKnowledge['vitamin deficiency symptoms'];
+  } else if (inputLower.includes('hello') || inputLower.includes('hi ') || inputLower === 'hi') {
+    return medicalKnowledge['hello'];
+  } else {
+    return medicalKnowledge['default'];
+  }
+}
+
+// Add message to chat
+function addMessage(text, sender) {
+  const messageDiv = document.createElement('div');
+  messageDiv.classList.add('message');
+  messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+  
+  if (sender === 'bot') {
+    messageDiv.innerHTML = `<strong>MediBot:</strong> ${text}`;
+  } else {
+    messageDiv.innerHTML = `<strong>You:</strong> ${text}`;
+  }
+  
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Handle suggestion clicks
+function suggestionClick(text) {
+  chatInput.value = text;
+  chatForm.dispatchEvent(new Event('submit'));
+}
+
+// Allow Enter key to submit (but allow Shift+Enter for new line)
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    chatForm.dispatchEvent(new Event('submit'));
+  }
+});
+
+// Add sample messages on load
+window.addEventListener('load', () => {
+  // Add welcome message if chat is empty
+  if (chatBox.children.length <= 1) {
+    addMessage("Hello! I'm your AI health assistant. How can I help you today? You can ask me about symptoms, general health advice, or medical information.", 'bot');
+  }
+});
+</script>
+</body>
+</html>

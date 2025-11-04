@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Dashboard - MediBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2575fc;
+      --secondary: #6a11cb;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+    }
+    
+    body { 
+      font-family: 'Roboto', sans-serif; 
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+      margin:0; 
+      color:#fff;
+      min-height: 100vh;
+    }
+    
+    .navbar { 
+      background-color: #ffffffcc; 
+      backdrop-filter: blur(8px); 
+    }
+    
+    .navbar-brand { 
+      font-family: 'Montserrat', sans-serif; 
+      font-weight:800; 
+      color:var(--primary) !important;
+    }
+    
+    .nav-link { 
+      font-weight:500; 
+      color:#555 !important;
+    }
+    
+    .nav-link:hover, .nav-link.active { 
+      color:var(--primary) !important;
+    }
+    
+    .page-header { 
+      text-align:center; 
+      padding:100px 20px 40px;
+    }
+    
+    .page-header h1 { 
+      font-family:'Montserrat', sans-serif; 
+      font-weight:800; 
+      font-size:3rem;
+      margin-bottom: 10px;
+    }
+    
+    .page-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    
+    .card { 
+      border-radius:20px; 
+      padding:25px; 
+      box-shadow:0 10px 30px rgba(0,0,0,0.2); 
+      background:#fff; 
+      color:#333;
+      height: 100%;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: none;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+    
+    .card h5 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card h5 i {
+      color: var(--primary);
+    }
+    
+    .vital-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--dark);
+    }
+    
+    .vital-label {
+      font-size: 0.9rem;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .vital-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    
+    .status-normal {
+      background-color: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+    }
+    
+    .status-warning {
+      background-color: rgba(243, 156, 18, 0.2);
+      color: var(--warning);
+    }
+    
+    .status-danger {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--danger);
+    }
+    
+    .trend-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+    
+    .trend-up {
+      color: var(--danger);
+    }
+    
+    .trend-down {
+      color: var(--success);
+    }
+    
+    .trend-stable {
+      color: var(--warning);
+    }
+    
+    .chart-container {
+      height: 200px;
+      margin-top: 15px;
+    }
+    
+    .health-summary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .health-score {
+      font-size: 3.5rem;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .progress-container {
+      margin: 20px 0;
+    }
+    
+    .progress {
+      height: 10px;
+      border-radius: 10px;
+      background-color: rgba(255,255,255,0.3);
+      margin-bottom: 10px;
+    }
+    
+    .progress-bar {
+      border-radius: 10px;
+    }
+    
+    footer { 
+      background:#1a1a1a; 
+      color:#fff; 
+      padding:30px; 
+      text-align:center;
+      margin-top: 50px;
+    }
+    
+    footer a { 
+      color:#2575fc; 
+      text-decoration:none;
+    }
+    
+    .last-updated {
+      font-size: 0.8rem;
+      color: #999;
+      text-align: right;
+      margin-top: 10px;
+    }
+    
+    .real-time-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--success);
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: white;
+      margin: 30px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+    
+    .medication-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .medication-item:last-child {
+      border-bottom: none;
+    }
+    
+    .medication-name {
+      font-weight: 500;
+    }
+    
+    .medication-dosage {
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
+    .medication-time {
+      background-color: var(--primary);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">MediBot</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="symptoms.html">Symptoms</a></li>
+          <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
+          <li class="nav-item"><a class="nav-link active" href="health.html">Health</a></li>
+          <li class="nav-item"><a class="nav-link" href="records.html">Records</a></li>
+          <li class="nav-item position-relative">
+            <a class="nav-link" href="notifications.html">Notifications</a>
+            <span class="notification-badge">3</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Your Health Dashboard</h1>
+    <p>Track your vitals, lifestyle, and progress in real-time</p>
+  </div>
+
+  <!-- Content -->
+  <div class="container mb-5">
+    <!-- Health Summary -->
+    <div class="health-summary">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h3>Overall Health Score</h3>
+          <p class="mb-0">Based on your recent vitals and activity</p>
+        </div>
+        <div class="col-md-6 text-center">
+          <div class="health-score">82<span style="font-size: 1.5rem">/100</span></div>
+          <div class="trend-indicator">
+            <i class="fas fa-arrow-up trend-up"></i>
+            <span>Improved by 5 points from last week</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-container">
+        <div class="d-flex justify-content-between">
+          <span>Activity</span>
+          <span>85%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+          <span>Nutrition</span>
+          <span>70%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar bg-warning" role="progressbar" style="width: 70%"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+          <span>Sleep</span>
+          <span>90%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar bg-info" role="progressbar" style="width: 90%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vitals Section -->
+    <h3 class="section-title">Vitals <span class="real-time-indicator"></span> Live</h3>
+    <div class="row g-4">
+      <!-- Heart Rate -->
+      <div class="col-md-4">
+        <div class="card">
+          <h5><i class="fas fa-heartbeat"></i> Heart Rate</h5>
+          <div class="vital-value">76 <span style="font-size: 1rem">bpm</span></div>
+          <div class="vital-label">Resting Heart Rate</div>
+          <span class="vital-status status-normal">Normal</span>
+          <div class="trend-indicator">
+            <i class="fas fa-arrow-down trend-down"></i>
+            <span>2 bpm lower than yesterday</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="heartRateChart"></canvas>
+          </div>
+          <div class="last-updated">Updated: <span id="heartRateTime">Just now</span></div>
+        </div>
+      </div>
+      
+      <!-- Blood Pressure -->
+      <div class="col-md-4">
+        <div class="card">
+          <h5><i class="fas fa-tint"></i> Blood Pressure</h5>
+          <div class="vital-value">120 <span style="font-size: 1rem">/ 80</span></div>
+          <div class="vital-label">Systolic / Diastolic (mmHg)</div>
+          <span class="vital-status status-normal">Normal</span>
+          <div class="trend-indicator">
+            <i class="fas fa-minus trend-stable"></i>
+            <span>Stable for 2 weeks</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="bpChart"></canvas>
+          </div>
+          <div class="last-updated">Updated: <span id="bpTime">5 min ago</span></div>
+        </div>
+      </div>
+      
+      <!-- Sleep -->
+      <div class="col-md-4">
+        <div class="card">
+          <h5><i class="fas fa-bed"></i> Sleep</h5>
+          <div class="vital-value">7<span style="font-size: 1rem">h </span>30<span style="font-size: 1rem">m</span></div>
+          <div class="vital-label">Last Night</div>
+          <span class="vital-status status-warning">Slightly Low</span>
+          <div class="trend-indicator">
+            <i class="fas fa-arrow-down trend-down"></i>
+            <span>45m less than average</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="sleepChart"></canvas>
+          </div>
+          <div class="last-updated">Updated: <span id="sleepTime">Today, 7:30 AM</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Health Metrics -->
+    <h3 class="section-title">Additional Metrics</h3>
+    <div class="row g-4">
+      <!-- Oxygen Level -->
+      <div class="col-md-3">
+        <div class="card">
+          <h5><i class="fas fa-lungs"></i> SpO2</h5>
+          <div class="vital-value">98<span style="font-size: 1rem">%</span></div>
+          <div class="vital-label">Blood Oxygen</div>
+          <span class="vital-status status-normal">Excellent</span>
+          <div class="last-updated">Updated: <span id="oxygenTime">2 hours ago</span></div>
+        </div>
+      </div>
+      
+      <!-- Activity -->
+      <div class="col-md-3">
+        <div class="card">
+          <h5><i class="fas fa-walking"></i> Steps</h5>
+          <div class="vital-value">8,542</div>
+          <div class="vital-label">Today</div>
+          <span class="vital-status status-normal">Good</span>
+          <div class="last-updated">Updated: <span id="stepsTime">Live</span></div>
+        </div>
+      </div>
+      
+      <!-- Weight -->
+      <div class="col-md-3">
+        <div class="card">
+          <h5><i class="fas fa-weight"></i> Weight</h5>
+          <div class="vital-value">68.2<span style="font-size: 1rem">kg</span></div>
+          <div class="vital-label">This Morning</div>
+          <span class="vital-status status-normal">Healthy</span>
+          <div class="last-updated">Updated: <span id="weightTime">Yesterday</span></div>
+        </div>
+      </div>
+      
+      <!-- Hydration -->
+      <div class="col-md-3">
+        <div class="card">
+          <h5><i class="fas fa-tint"></i> Hydration</h5>
+          <div class="vital-value">1.8<span style="font-size: 1rem">L</span></div>
+          <div class="vital-label">Today</div>
+          <span class="vital-status status-warning">Need More</span>
+          <div class="last-updated">Updated: <span id="hydrationTime">Live</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medications & Reminders -->
+    <h3 class="section-title">Medications & Reminders</h3>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card">
+          <h5><i class="fas fa-pills"></i> Today's Medications</h5>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Metformin</div>
+              <div class="medication-dosage">500mg • For Diabetes</div>
+            </div>
+            <div class="medication-time">8:00 AM</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Lisinopril</div>
+              <div class="medication-dosage">10mg • For Blood Pressure</div>
+            </div>
+            <div class="medication-time">8:00 AM</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Aspirin</div>
+              <div class="medication-dosage">81mg • Blood Thinner</div>
+            </div>
+            <div class="medication-time">8:00 PM</div>
+          </div>
+          <div class="text-center mt-3">
+            <button class="btn btn-outline-primary btn-sm">View All Medications</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card">
+          <h5><i class="fas fa-bell"></i> Upcoming Appointments</h5>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Dr. Sarah Johnson</div>
+              <div class="medication-dosage">Cardiology Follow-up</div>
+            </div>
+            <div class="medication-time">Tomorrow</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Blood Work</div>
+              <div class="medication-dosage">Annual Checkup</div>
+            </div>
+            <div class="medication-time">Oct 15</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="medication-name">Dental Cleaning</div>
+              <div class="medication-dosage">Routine Cleaning</div>
+            </div>
+            <div class="medication-time">Nov 5</div>
+          </div>
+          <div class="text-center mt-3">
+            <button class="btn btn-outline-primary btn-sm">Schedule New Appointment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 MediBot. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize charts
+    document.addEventListener('DOMContentLoaded', function() {
+      // Heart Rate Chart
+      const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+      const heartRateChart = new Chart(heartRateCtx, {
+        type: 'line',
+        data: {
+          labels: ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM'],
+          datasets: [{
+            label: 'Heart Rate (bpm)',
+            data: [68, 72, 76, 74, 78, 70],
+            borderColor: '#e74c3c',
+            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              min: 60,
+              max: 90
+            }
+          }
+        }
+      });
+      
+      // Blood Pressure Chart
+      const bpCtx = document.getElementById('bpChart').getContext('2d');
+      const bpChart = new Chart(bpCtx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [
+            {
+              label: 'Systolic',
+              data: [122, 120, 118, 121, 119, 120, 120],
+              borderColor: '#2575fc',
+              backgroundColor: 'rgba(37, 117, 252, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Diastolic',
+              data: [82, 80, 78, 79, 80, 80, 80],
+              borderColor: '#6a11cb',
+              backgroundColor: 'rgba(106, 17, 203, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+      
+      // Sleep Chart
+      const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+      const sleepChart = new Chart(sleepCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Hours Slept',
+            data: [7.5, 8.2, 6.8, 7.0, 7.5, 8.5, 7.3],
+            backgroundColor: '#9b59b6',
+            borderColor: '#8e44ad',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 10
+            }
+          }
+        }
+      });
+      
+      // Simulate real-time updates
+      setInterval(function() {
+        // Update steps randomly
+        const stepsElement = document.querySelector('.col-md-3:nth-child(2) .vital-value');
+        const currentSteps = parseInt(stepsElement.textContent.replace(',', ''));
+        stepsElement.textContent = (currentSteps + Math.floor(Math.random() * 10)).toLocaleString();
+        
+        // Update hydration
+        const hydrationElement = document.querySelector('.col-md-3:nth-child(4) .vital-value');
+        const currentHydration = parseFloat(hydrationElement.textContent);
+        hydrationElement.textContent = (currentHydration + 0.1).toFixed(1) + 'L';
+        
+        // Update heart rate slightly
+        const newHeartRate = 76 + Math.floor(Math.random() * 5) - 2;
+        document.querySelector('.col-md-4:nth-child(1) .vital-value').innerHTML = newHeartRate + ' <span style="font-size: 1rem">bpm</span>';
+        
+        // Update last updated times
+        document.getElementById('heartRateTime').textContent = 'Just now';
+      }, 10000);
+    });
+  </script>
+</body>
+</html>

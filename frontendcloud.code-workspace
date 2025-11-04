@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../backendcloud"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "frontendcloud"
+	}
+}
