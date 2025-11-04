@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBot - Symptom Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2575fc;
+            --secondary: #6a11cb;
+            --accent: #2dd4bf;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f2f5;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar {
+            background-color: #ffffffcc;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--primary) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: #475569 !important;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            padding: 100px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 极狐 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 极狐 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-极狐 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 极狐 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2极狐 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .card {
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10极狐 30px rgba(0,0,0,0.1);
+            margin-top: -50px;
+            position: relative;
+            background: white;
+            border: none;
+        }
+        
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(37, 117, 252, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 117, 252, 0.2);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary);
+        }
+        
+        .condition-card {
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .condition-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .probability-bar {
+            height: 24px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .triage-emergency {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .triage-acute {
+            border-left: 4px solid #fd7e14;
+        }
+        
+        .triage-regular {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .symptom-tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero {
+                padding: 80px 0 60px;
+            }
+            
+            .card {
+                margin-top: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat"></i> MediBot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="symptoms.html">Symptoms</a></li>
+                    <li class="nav-item"><极狐 href="health.html">Health</a></li>
+                    <li class="nav-item"><a class="nav-link" href="records.html">Records</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notifications.html">Notifications</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Check Your Symptoms Instantly</h1>
+            <p>Enter your symptoms below and get AI-powered insights about possible conditions with our advanced symptom analysis technology.</p>
+        </div>
+    </section>
+
+    <!-- Symptoms Form Section -->
+    <div class="container">
+        <div class="card col-lg-8 mx-auto">
+            <h2 class="text-center"><i class="fas fa-stethoscope me-2"></i>Symptom Checker</h2>
+            <form id="symptomForm">
+                <div class="mb-4">
+                    <label for="symptoms" class="form-label fw-bold">Select your symptoms:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="symptoms" placeholder="E.g. Headache, Fever, Cough">
+                    </div>
+                    <div class="d-flex flex-wrap mt-2" id="selectedSymptoms">
+                        <!-- Selected symptoms will appear here -->
+                    </div>
+                    <div class="form-text">Type a symptom and press Enter to add it</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="age" class="form-label fw-bold">Your Age:</label>
+                        <input type="number" class="form-control" id="age" min="0" max="120" placeholder="E.g. 35" required>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="gender" class="form-label fw-bold">Gender:</label>
+                        <select class="form-select" id="gender" required>
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold">
+                    <i class="fas fa-diagnoses me-2"></i>Analyze Symptoms
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing your symptoms with our AI engine...</p>
+            </div>
+            
+            <div id="symptomResult" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- How it works section -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="text-center mb-5">How Our Symptom Checker Works</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h5>Add Symptoms</h5>
+                            <p class="text-muted">Enter your symptoms, age, and gender for a personalized analysis.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-brain"></极狐>
+                            </div>
+                            <h5>AI Analysis</h5>
+                            <p class="text-muted">Our advanced AI compares your symptoms against thousands of conditions.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <h5>Get Results</极狐>
+                            <p class="text-muted">Receive possible conditions with probability percentages and recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h4 class="mb-4">MediBot - Your AI Health Assistant</h4>
+                    <p class="text-light mb-4">MediBot provides AI-powered health insights. Always consult with a healthcare professional for medical advice.</p>
+                    <p class="text-muted">© 2023 MediBot. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const symptomForm = document.getElementById('symptomForm');
+            const symptomsInput = document.getElementById('symptoms');
+            const selectedSymptomsContainer = document.getElementById('selectedSymptoms');
+            const loadingElement = document.getElementById('loading');
+            const resultElement = document.getElementById('symptomResult');
+            
+            let selectedSymptoms = [];
+            
+            // Handle symptom input
+            symptomsInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    e.preventDefault();
+                    addSymptom(this.value.trim());
+                    this.value = '';
+                }
+            });
+            
+            // Add symptom to the list
+            function addSymptom(symptom) {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                    
+                    const symptomTag = document.createElement('span');
+                    symptomTag.className = 'symptom-tag';
+                    symptomTag.innerHTML = `${symptom} <i class="fas fa-times ms-2" data-symptom="${symptom}"></i>`;
+                    
+                    symptomTag.querySelector('i').addEventListener('click', function() {
+                        const symptomToRemove = this.getAttribute('data-symptom');
+                        selectedSymptoms = selectedSymptoms.filter(s => s !== symptomToRemove);
+                        symptomTag.remove();
+                    });
+                    
+                    selectedSymptomsContainer.appendChild(symptomTag);
+                }
+            }
+            
+            // Handle form submission
+            symptomForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const age = document.getElementById('age').value;
+                const gender = document.getElementById('gender').value;
+                
+                if (selectedSymptoms.length === 0 || !age || !gender) {
+                    alert('Please fill all fields and add at least one symptom!');
+                    return;
+                }
+                
+                // Show loading state
+                loadingElement.style.display = 'block';
+                resultElement.innerHTML = '';
+                
+                try {
+                    // For demo purposes, we'll simulate a response since we don't have actual API credentials
+                    // In a real implementation, you would use:
+                    // const res = await fetch('/api/symptoms/check', { ... });
+                    
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Generate mock response based on symptoms
+                    const mockResponse = generateMockResponse(selectedSymptoms, age, gender);
+                    
+                    // Display results
+                    displayResults(mockResponse);
+                } catch (err) {
+                    document.getElementById('symptomResult').innerHTML = `
+                        <div class="alert alert-danger">
+                            Error: ${err.message || 'Unknown error occurred'}
+                            <p class="mt-2">Note: This is a demo. In a real implementation, you would need valid Infermedica API credentials.</p>
+                        </div>
+                    `;
+                } finally {
+                    loadingElement.style.display = 'none';
+                }
+            });
+            
+            // Generate mock response based on symptoms
+            function generateMockResponse(symptoms, age, gender) {
+                // Convert symptoms to lowercase for easier matching
+                const symptomsLower = symptoms.map(s => s.toLowerCase());
+                
+                let conditions = [];
+                let triageLevel = "regular";
+                
+                // Logic to generate conditions based on symptoms
+                if (symptomsLower.includes("fever") && symptomsLower.includes("cough")) {
+                    conditions = [
+                        { id: "c_123", name: "Common Cold", common_name: "Common Cold", probability: 0.45 },
+                        { id: "c_456", name: "Influenza", common_name: "Flu", probability: 0.35 },
+                        { id: "c_789", name: "COVID-19", common_name: "COVID-19", probability: 0.20 }
+                    ];
+                    triageLevel = "acute";
+                } else if (symptomsLower.includes("chest pain") || symptomsLower.includes("shortness of breath")) {
+                    conditions = [
+                        { id: "c_101", name: "Angina", common_name: "Angina", probability: 0.40 },
+                        { id: "c_102", name: "Anxiety", common_name: "Anxiety", probability: 0.35 },
+                        { id: "c_103", name: "Costochondritis", common_name: "Chest wall pain", probability: 0.25 }
+                    ];
+                    triageLevel = symptomsLower.includes("severe chest pain") ? "emergency" : "acute";
+                } else if (symptomsLower.includes("headache")) {
+                    conditions = [
+                        { id: "c_201", name: "Tension Headache", common_name: "Tension Headache", probability: 0.60 },
+                        { id: "c_202", name: "Migraine", common_name: "Migraine", probability: 0.30 },
+                        { id: "c_203", name: "Sinusitis", common_name: "Sinus infection", probability: 0.10 }
+                    ];
+                    triageLevel = "regular";
+                } else if (symptomsLower.includes("abdominal pain")) {
+                    conditions = [
+                        { id: "c_301", name: "Gastroenteritis", common_name: "Stomach flu", probability: 0.50 },
+                        { id: "c_302", name: "Irritable Bowel Syndrome", common_name: "IBS", probability: 0.30 },
+                        { id: "c_303", name: "Appendicitis", common_name: "Appendicitis", probability: 0.20 }
+                    ];
+                    triageLevel = symptomsLower.includes("severe abdominal pain") ? "emergency" : "acute";
+                } else {
+                    // Default response for other symptoms
+                    conditions = [
+                        { id: "c_999", name: "Generalized Condition", common_name: "General symptoms", probability: 0.70 },
+                        { id: "c_998", name: "Viral Infection", common_name: "Viral infection", probability: 0.20 },
+                        { id: "c_997", name: "Stress-Related Condition", common_name: "Stress-related", probability: 0.10 }
+                    ];
+                    triageLevel = "regular";
+                }
+                
+                return {
+                    conditions: conditions,
+                    triage_level: triageLevel
+                };
+            }
+            
+            // Function to display results
+            function displayResults(data) {
+                let html = '';
+                
+                if (data.conditions && data.conditions.length > 0) {
+                    html += `<h4 class="mb-4"><i class="fas fa-diagnoses me-2"></i>Possible Conditions:</h4>`;
+                    
+                    data.conditions.forEach(condition => {
+                        const probability = (condition.probability * 100).toFixed(1);
+                        html += `
+                            <div class="card condition-card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">${condition.name}</h5>
+                                    <div class="probability-bar">
+                                        <div class="probability-fill" style="width: ${probability}%">${probability}% Probability</div>
+                                    </div>
+                                    <p class="card-text text-muted">${condition.common_name}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<div class="alert alert-info">No conditions identified based on your symptoms.</div>`;
+                }
+                
+                // Show triage level if available
+                if (data.triage_level) {
+                    let triageText = '';
+                    let alertClass = '';
+                    let triageClass = '';
+                    
+                    switch(data.triage_level) {
+                        case 'emergency':
+                            triageText = 'Emergency Care Needed - Seek immediate medical attention';
+                            alertClass = 'danger';
+                            triageClass = 'triage-emergency';
+                            break;
+                        case 'acute':
+                            triageText = 'Urgent Care Recommended - See a doctor within 24 hours';
+                            alertClass = 'warning';
+                            triageClass = 'triage-acute';
+                            break;
+                        default:
+                            triageText = 'Routine Care Recommended - Schedule an appointment with your doctor';
+                            alertClass = 'info';
+                            triageClass = 'triage-regular';
+                    }
+                    
+                    html = `
+                        <div class="card ${triageClass} mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Medical Advice</h5>
+                                <div class="alert alert-${alertClass} mb-0">
+                                    <strong>${triageText}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    ` + html;
+                }
+                
+                // Add disclaimer
+                html += `
+                    <div class="alert alert-secondary mt-4">
+                        <h5><i class="fas fa-info-circle me-2"></i>Disclaimer</h5>
+                        <p class="mb-0">This symptom checker is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.</p>
+                    </div>
+                `;
+                
+                resultElement.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>
